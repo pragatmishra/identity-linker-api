@@ -3,7 +3,8 @@ import process from "process";
 
 const env = process.env.NODE_ENV || "development";
 
-let database = config.dbName;
+let database = config.dbName ?? "default_db_name";
+
 switch (env) {
   case "development":
     database = database + "_dev";
@@ -12,11 +13,12 @@ switch (env) {
     database = database + "_test";
     break;
   case "production":
-    database = database + "_prod";
+    // Don't append "_prod" — use DB name as-is
     break;
   default:
     database = database + "_dev";
 }
+
 
 export default {
   username: config.dbUsername,
