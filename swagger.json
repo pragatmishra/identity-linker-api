@@ -1,0 +1,150 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "User Identity Linker API",
+    "description": "A service to reconcile user identities based on shared emails and phone numbers. Helps detect multiple accounts belonging to the same user.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Pragati Mishra",
+      "email": "pragatmishra123@gmail.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api/v1/",
+      "description": "Local Docker Development Server"
+    }
+  ],
+  "paths": {
+    "/contacts/identify": {
+      "post": {
+        "summary": "Identify Linked Contacts",
+        "tags": ["User Identity"],
+        "x-amazon-apigateway-auth": {
+          "type": "NONE"
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "phoneNumber": { "type": "string" }
+                },
+                "required": ["email", "phoneNumber"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully identified linked contact information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "contact": {
+                      "type": "object",
+                      "properties": {
+                        "primaryContatctId": { "type": "integer" },
+                        "emails": {
+                          "type": "array",
+                          "items": { "type": "string" }
+                        },
+                        "phoneNumbers": {
+                          "type": "array",
+                          "items": { "type": "string" }
+                        },
+                        "linkedContactIds": {
+                          "type": "array",
+                          "items": { "type": "integer" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "contact": {
+                    "": 2,
+                    "emails": ["xyz@gmail.com", "wx@gmail.com"],
+                    "phoneNumbers": ["817155"],
+                    "linkedContactIds": [20, 6, 21]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "message": { "type": "string" }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "errors": [
+                      { "message": "\"phoneNumber\" must be a string" },
+                      { "message": "\"emailAddress\" is not allowed" }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserContact": {
+        "description": "Schema representing a user's contact entry in the system",
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "phoneNumber": { "type": "string" },
+          "email": { "type": "string" },
+          "linkedId": { "type": "integer" },
+          "linkStatus": {
+            "type": "string",
+            "enum": ["primary", "secondary"]
+          },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" },
+          "deletedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "securitySchemes": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "User Identity",
+      "description": "Operations for identifying and linking user contact records"
+    }
+  ]
+}
